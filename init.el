@@ -199,6 +199,7 @@
 (setq org-agenda-files (list "~/org/condition.org"
                              "~/org/school.org" 
                              "~/org/home.org"))
+		
 (add-hook 'org-mode-hook #'(lambda ()
 
                              ;; make the lines in the buffer wrap around the edges of the screen.
@@ -269,7 +270,7 @@
 
 
 (use-package org-roam-bibtex
-  :after org-roam
+  :hook (org-roam-mode . org-roam-bibtex-mode)
   :config
   (require 'org-ref)
   (setq orb-preformat-keywords
@@ -288,8 +289,7 @@
   :init
   :custom
   (org-roam-directory "/Users/lucas/OneDrive - The University of Colorado Denver/Notes/")
-  (org-roam-capture-templates'(("d" "default" plain
-   "%?"
+  (org-roam-capture-templates'(("d" "default" plain "%?"
    :target (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n")
    :unnarrowed t)))
   (org-roam-completion-everywhere t)
@@ -335,3 +335,9 @@
   '(progn
      (define-key flyspell-mouse-map [down-mouse-3] #'flyspell-correct-word)
      (define-key flyspell-mouse-map [mouse-3] #'undefined)))
+
+
+
+;; word counting
+(add-to-list 'load-path "~/.emacs.d/org-tracktable")
+(load "org-tracktable.el")
