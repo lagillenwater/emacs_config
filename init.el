@@ -270,6 +270,7 @@
 
 
 (use-package org-roam-bibtex
+  :init
   :hook (org-roam-mode . org-roam-bibtex-mode)
   :config
   (require 'org-ref)
@@ -293,15 +294,48 @@
    :target (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n")
    :unnarrowed t)))
   (org-roam-completion-everywhere t)
+  (org-roam-dailies-capture-templates
+    '(("d" "default" entry "* %<%I:%M %p>: %?"
+       :if-new (file+head "%<%Y-%m-%d>.org" "#+title: %<%Y-%m-%d>\n"))))
   :bind (("C-c n l" . org-roam-buffer-toggle)
-	 ("C-c n f" . org-roam-node-find)
-	 ("C-c n i" . org-roam-node-insert)
-	 :map org-mode-map
-	 ("C-M-i"  . completion-at-point))
+         ("C-c n f" . org-roam-node-find)
+         ("C-c n i" . org-roam-node-insert)
+         :map org-mode-map
+         ("C-M-i" . completion-at-point)
+         :map org-roam-dailies-map
+         ("Y" . org-roam-dailies-capture-yesterday)
+         ("T" . org-roam-dailies-capture-tomorrow))
+  :bind-keymap
+  ("C-c n d" . org-roam-dailies-map)
   :config
-  (org-roam-setup)
-  
-  )
+  (require 'org-roam-dailies) ;; Ensure the keymap is available
+  (org-roam-db-autosync-mode))
+
+
+(defun my/org-roam-copy-todo-to-today ()
+  (interactive)
+  (let ((org-refile-keep t) ;; Set this to nil to delete the original!
+        (org-roam-dailies-capture-templates
+          '(("t" "tasks" entry "%?"
+             :if-new (file+head+olp "%<%Y-%m-%d>.org" "#+title: %<%Y-%m-%d>\n" ("Tasks")))))
+        (org-after-refile-insert-hook #'save-buffer)
+        today-file
+        pos)
+    (save-window-excursion
+      (org-roam-dailies--capture (current-time) t)
+      (setq today-file (buffer-file-name))
+      (setq pos (point)))
+
+    ;; Only refile if the target file is different than the current file
+    (unless (equal (file-truename today-file)
+                   (file-truename (buffer-file-name)))
+      (org-refile nil nil (list "Tasks" today-file nil pos)))))
+
+(add-to-list 'org-after-todo-state-change-hook
+             (lambda ()
+               (when (equal org-state "DONE")
+                 (my/org-roam-copy-todo-to-today))))
+
 
 ;; flyspell
     (defun flyspell-on-for-buffer-type ()
@@ -340,4 +374,39 @@
 
 ;; word counting
 (add-to-list 'load-path "~/.emacs.d/org-tracktable")
-(load "org-tracktable.el")
+(load"org-tracktable.el")
+(setq org-tracktable-daily-goal 1000)
+
+
+;; to try and fix r behavior of going grey sometimes
+(use-package xterm-color
+
+  :init
+  (setq comint-output-filter-functions
+        (remove 'ansi-color-process-output comint-output-filter-functions))
+
+  (add-hook 'inferior-ess-mode-hook
+            (lambda () (add-hook 'comint-preoutput-filter-functions #'xterm-color-filter nil t)))
+
+  :config
+  (setq xterm-color-use-bold t))
+
+
+;; backup files in a single folder 
+(setq backup-directory-alist '(("" . "~/.emacs.d/backup")))
+
+
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(custom-enabled-themes '(wombat))
+ '(package-selected-packages
+   '(xterm-color yasnippet which-key virtualenv use-package tern-auto-complete rainbow-delimiters pyvenv python-mode poly-R pdf-tools org-roam-bibtex org-ref org-plus-contrib org-noter lsp-ui lsp-ivy jedi ivy-rich helpful helm-bibtex heaven-and-hell frame-local forge flycheck eval-in-repl ess doom-themes doom-modeline deft dap-mode counsel-projectile company-jedi command-log-mode citar auto-complete-sage)))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
