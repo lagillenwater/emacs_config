@@ -198,7 +198,8 @@
 (setq org-log-done t)
 (setq org-agenda-files (list "~/org/condition.org"
                              "~/org/school.org" 
-                             "~/org/home.org"))
+                             "~/org/home.org"
+			     "~/org/calendar.org"))
 		
 (add-hook 'org-mode-hook #'(lambda ()
 
@@ -283,7 +284,7 @@
       '(("r" "bibliography reference" plain
          (file "/Users/lucas/OneDrive - The University of Colorado Denver/Notes/note_template.org")
          :target
-         (file+head "${citekey}.org" "#+title: ${title}\n"))))) ; optional: if using Org-ref v2 or v3 citation links
+         (file+head "${citekey}.org" "#+title: ${title}\n *Notes\n:AUTHOR: ${author-or-editor}"))))) ; optional: if using Org-ref v2 or v3 citation links
 
 (use-package org-roam
   :ensure t
@@ -335,6 +336,9 @@
              (lambda ()
                (when (equal org-state "DONE")
                  (my/org-roam-copy-todo-to-today))))
+
+
+
 
 
 ;; flyspell
@@ -395,6 +399,20 @@
 ;; backup files in a single folder 
 (setq backup-directory-alist '(("" . "~/.emacs.d/backup")))
 
+;; Adding clocking functions to track time
+(setq org-clock-persist 'history)
+(org-clock-persistence-insinuate)
+
+
+;; outlook syncing
+
+(defun organised-exchange ()
+  "Sync Outlook Calendar ics with Org Agenda."
+  (interactive)
+  (if (get-buffer "CPBS.org")
+      (kill-buffer "CPBS.org"))
+  (shell-command "~/software/organised-exchange/bin/eto")
+  (message "calendar imported!"))
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
