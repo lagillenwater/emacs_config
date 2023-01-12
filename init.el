@@ -199,7 +199,10 @@
 (setq org-agenda-files (list "~/org/condition.org"
                              "~/org/school.org" 
                              "~/org/home.org"
-			     "~/org/calendar.org"))
+			     "~/org/CPBS.org"))
+
+
+
 		
 (add-hook 'org-mode-hook #'(lambda ()
 
@@ -312,6 +315,8 @@
   (require 'org-roam-dailies) ;; Ensure the keymap is available
   (org-roam-db-autosync-mode))
 
+(global-auto-revert-mode 1)
+
 
 (defun my/org-roam-copy-todo-to-today ()
   (interactive)
@@ -413,6 +418,9 @@
       (kill-buffer "CPBS.org"))
   (shell-command "~/software/organised-exchange/bin/eto")
   (message "calendar imported!"))
+
+
+
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
