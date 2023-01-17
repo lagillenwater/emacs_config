@@ -276,6 +276,7 @@
 (use-package org-roam-bibtex
   :init
   :hook (org-roam-mode . org-roam-bibtex-mode)
+  :commands (org-roam-bibtex-mode)
   :config
   (require 'org-ref)
   (setq orb-preformat-keywords
@@ -284,8 +285,7 @@
       orb-attached-file-extensions '("pdf"))
 
   (setq org-roam-capture-templates
-      '(("r" "bibliography reference" plain
-         (file "/Users/lucas/OneDrive - The University of Colorado Denver/Notes/note_template.org")
+      '(("r" "bibliography reference" plain "%?"
          :target
          (file+head "${citekey}.org" "#+title: ${title}\n *Notes\n:AUTHOR: ${author-or-editor}"))))) ; optional: if using Org-ref v2 or v3 citation links
 
@@ -409,18 +409,16 @@
 (org-clock-persistence-insinuate)
 
 
-;; outlook syncing
-
-(defun organised-exchange ()
-  "Sync Outlook Calendar ics with Org Agenda."
-  (interactive)
-  (if (get-buffer "CPBS.org")
-      (kill-buffer "CPBS.org"))
-  (shell-command "~/software/organised-exchange/bin/eto")
-  (message "calendar imported!"))
 
 
+;; for org exports
 
+(use-package ox-pandoc
+  :init)
+
+
+(use-package anki-editor)
+(use-package anki-connect)
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
@@ -429,7 +427,7 @@
  ;; If there is more than one, they won't work right.
  '(custom-enabled-themes '(wombat))
  '(package-selected-packages
-   '(xterm-color yasnippet which-key virtualenv use-package tern-auto-complete rainbow-delimiters pyvenv python-mode poly-R pdf-tools org-roam-bibtex org-ref org-plus-contrib org-noter lsp-ui lsp-ivy jedi ivy-rich helpful helm-bibtex heaven-and-hell frame-local forge flycheck eval-in-repl ess doom-themes doom-modeline deft dap-mode counsel-projectile company-jedi command-log-mode citar auto-complete-sage)))
+   '(anki-connect anki-editor xterm-color yasnippet which-key virtualenv use-package tern-auto-complete rainbow-delimiters pyvenv python-mode poly-R pdf-tools org-roam-bibtex org-ref org-plus-contrib org-noter lsp-ui lsp-ivy jedi ivy-rich helpful helm-bibtex heaven-and-hell frame-local forge flycheck eval-in-repl ess doom-themes doom-modeline deft dap-mode counsel-projectile company-jedi command-log-mode citar auto-complete-sage)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
