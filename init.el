@@ -1,4 +1,4 @@
-;; mac specific key mappings
+;; Mac  specific key mappings
 (when (eq system-type 'darwin)
   (setq
    ns-command-modifier 'super
@@ -14,18 +14,12 @@
   (global-set-key (kbd "s-y") 'undo-redo)
   (global-set-key (kbd "s-f") 'swiper)
   (global-set-key (kbd "s-g") 'keyboard-escape-quit)
-  (global-set-key (kbd "s-o") 'find-file)
-  (global-set-key (kbd "s-n") 'find-file)
-  (global-set-key (kbd "s-s") 'save-buffer)
-  (global-set-key (kbd "s-S") 'mac-save-file-as) ; need to fix this one
   (global-set-key (kbd "s-p") 'mac-preview) ; requires mac-preview
   (global-set-key (kbd "s-w") 'kill-buffer)
   (global-set-key (kbd "s-m") 'iconify-frame)
   (global-set-key (kbd "s-q") 'save-buffers-kill-emacs)
   (global-set-key (kbd "s-.") 'keyboard-quit)
   (global-set-key (kbd "s-l") 'goto-line)
-  (global-set-key (kbd "s-k") 'kill-buffer)
-  (global-set-key (kbd "s-b") 'counsel-switch-buffer)
   ;;(global-set-key (kbd "s-<up>")    'beginning-of-buffer)
   ;;(global-set-key (kbd "s-<down>")  'end-of-buffer)
   ;;(global-set-key (kbd "s-<left>")  'beginning-of-line)
@@ -182,28 +176,17 @@
          ("<f6>" . heaven-and-hell-toggle-theme)))
 
 
-;; This is to use pdf-tools instead of doc-viewer
-(use-package pdf-tools
-  :config
-  (pdf-tools-install)
-  ;; This means that pdfs are fitted to width by default when you open them
-  (setq-default pdf-view-display-size 'fit-width)
-  :custom
-  (pdf-annot-activate-created-annotations t "automatically annotate highlights"))
+
 
 
 ;; org mode
 (define-key global-map "\C-cl" 'org-store-link)
 (define-key global-map "\C-ca" 'org-agenda)
 (setq org-log-done t)
-(setq org-agenda-files (list "~/org/condition.org"
-                             "~/org/school.org" 
+(setq org-agenda-files (list "~/org/school.org" 
                              "~/org/home.org"
 			     "~/org/CPBS.org"))
 
-
-
-		
 (add-hook 'org-mode-hook #'(lambda ()
 
                              ;; make the lines in the buffer wrap around the edges of the screen.
@@ -212,82 +195,31 @@
                              (visual-line-mode)
                              (org-indent-mode)))
 
+
 ;; helm-bibtex related stuff
 (use-package helm-bibtex
     :custom
     ;; In the lines below I point helm-bibtex to my default library file.
     (bibtex-completion-bibliography '("/Users/lucas/OneDrive - The University of Colorado Denver/Bibliography/bibliography.bib"))
     (reftex-default-bibliography '("/Users/lucas/OneDrive - The University of Colorado Denver/Bibliography/bibliography.bib"))
-    (bibtex-completion-pdf-field "file")
-)
-  
-
-;; Set up org-ref stuff
-(use-package org-ref
-    :config
-    (setq
-     org-ref-default-bibliography (list "/Users/lucas/OneDrive - The University of Colorado Denver/Bibliography/bibliography.bib")
-    ))
+    ;; The line below tells helm-bibtex to find the path to the pdf
+    ;; in the "file" field in the .bib file.
+    (bibtex-completion-pdf-field "file"))
+ 
+ 
 
 
-;; The function below allows me to consult the pdf of the citation I currently have my cursor on.
- (defun my/org-ref-open-pdf-at-point ()
-  "Open the pdf for bibtex key under point if it exists."
-  (interactive)
-  (let* ((results (org-ref-get-bibtex-key-and-file))
-         (key (car results))
-         (pdf-file (funcall org-ref-get-pdf-filename-function key)))
-    (if (file-exists-p pdf-file)
-        (find-file pdf-file)
-      (message "No PDF found for %s" key))))
+;; (use-package org-ref
+;;   :ensure t
+;;   :init
+;;   :config
+;;   (setq reftex-default-bibliography '("/Users/lucas/OneDrive - The University of Colorado Denver/Bibliography/bibliography.bib")
+;; 	org-ref-default-bibliography (list "/Users/lucas/OneDrive - The University of Colorado Denver/Bibliography/bibliography.bib"))
+;;   )
 
-  (setq org-ref-completion-library 'org-ref-ivy-cite
-        org-export-latex-format-toc-function 'org-export-latex-no-toc
-        org-ref-get-pdf-filename-function
-        (lambda (key) (car (bibtex-completion-find-pdf key)))
-        ;; See the function I defined above.
-        org-ref-open-pdf-function 'my/org-ref-open-pdf-at-point
-        ;; For pdf export engines.
-        org-latex-pdf-process (list "latexmk -pdflatex='%latex -shell-escape -interaction nonstopmode' -pdf -bibtex -f -output-directory=%o %f")
-        ;; I use orb to link org-ref, helm-bibtex and org-noter together (see below for more on org-noter and orb).
-        org-ref-notes-function 'orb-edit-notes)
+ 
 
 
-;; This is to use pdf-tools instead of doc-viewer
-(use-package pdf-tools
-  :config
-  (pdf-tools-install)
-  ;; This means that pdfs are fitted to width by default when you open them
-  (setq-default pdf-view-display-size 'fit-width)
-  :custom
-  (pdf-annot-activate-created-annotations t "automatically annotate highlights"))
-
-;; org noter
-(use-package org-noter
-  :config
-  (setq org-noter-notes-search-path '("/Users/lucas/OneDrive - The University of Colorado Denver/Notes/")
-	
-	)
-  )
-				     
-
-
-
-(use-package org-roam-bibtex
-  :init
-  :hook (org-roam-mode . org-roam-bibtex-mode)
-  :commands (org-roam-bibtex-mode)
-  :config
-  (require 'org-ref)
-  (setq orb-preformat-keywords
-      '("citekey" "title" "url" "author-or-editor" "keywords" "file")
-      orb-process-file-keyword t
-      orb-attached-file-extensions '("pdf"))
-
-  (setq org-roam-capture-templates
-      '(("r" "bibliography reference" plain "%?"
-         :target
-         (file+head "${citekey}.org" "#+title: ${title}\n *Notes\n:AUTHOR: ${author-or-editor}"))))) ; optional: if using Org-ref v2 or v3 citation links
 
 (use-package org-roam
   :ensure t
@@ -337,10 +269,10 @@
                    (file-truename (buffer-file-name)))
       (org-refile nil nil (list "Tasks" today-file nil pos)))))
 
-(add-to-list 'org-after-todo-state-change-hook
-             (lambda ()
-               (when (equal org-state "DONE")
-                 (my/org-roam-copy-todo-to-today))))
+
+
+
+
 
 
 
@@ -411,14 +343,45 @@
 
 
 
-;; for org exports
+;;eaf
+(add-to-list 'load-path "~/.emacs.d/site-lisp/emacs-application-framework/")
+(require 'eaf)
+(require 'eaf-browser)
 
-(use-package ox-pandoc
-  :init)
 
 
 (use-package anki-editor)
 (use-package anki-connect)
+
+
+
+;;; company
+(require 'company)
+(setq tab-always-indent 'complete)
+
+(setq company-idle-delay 0.5
+      company-show-numbers t
+      company-minimum-prefix-length 2
+      company-tooltip-flip-when-above t)
+
+(global-set-key (kbd "C-M-/") #'company-complete)
+(global-company-mode)
+
+;;; ESS
+(defun my-ess-hook ()
+  ;; ensure company-R-library is in ESS backends
+  (make-local-variable 'company-backends)
+  (cl-delete-if (lambda (x) (and (eq (car-safe x) 'company-R-args))) company-backends)
+  (push (list 'company-R-args 'company-R-objects 'company-R-library :separate)
+        company-backends))
+
+(add-hook 'ess-mode-hook 'my-ess-hook)
+
+(with-eval-after-load 'ess
+  (setq ess-use-company t))
+
+;; winmove default key bindings for quick movements around windows
+(windmove-default-keybindings)
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
@@ -426,8 +389,9 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(custom-enabled-themes '(wombat))
+ '(ein:jupyter-default-server-command "/opt/homebrew/Caskroom/miniconda/base/bin/jupyter")
  '(package-selected-packages
-   '(anki-connect anki-editor xterm-color yasnippet which-key virtualenv use-package tern-auto-complete rainbow-delimiters pyvenv python-mode poly-R pdf-tools org-roam-bibtex org-ref org-plus-contrib org-noter lsp-ui lsp-ivy jedi ivy-rich helpful helm-bibtex heaven-and-hell frame-local forge flycheck eval-in-repl ess doom-themes doom-modeline deft dap-mode counsel-projectile company-jedi command-log-mode citar auto-complete-sage)))
+   '(helm-bibtex pdf-tools org-pdftools jupyter ein ox-hugo anki-connect anki-editor xterm-color yasnippet which-key virtualenv use-package tern-auto-complete rainbow-delimiters pyvenv python-mode poly-R org-plus-contrib org-noter lsp-ui lsp-ivy jedi ivy-rich helpful heaven-and-hell frame-local forge flycheck eval-in-repl ess doom-themes doom-modeline deft dap-mode counsel-projectile company-jedi command-log-mode citar auto-complete-sage)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
